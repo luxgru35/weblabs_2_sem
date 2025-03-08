@@ -1,10 +1,8 @@
-// users.js
-const express = require('express');
-const { User } = require('./db');
-const { ValidationError, NotFoundError } = require('./errors');
-const router = express.Router();
+const { User } = require('../models');
+const { ValidationError, NotFoundError } = require('../utils/errors');
 
-router.post('/users', async (req, res, next) => {
+// Создание пользователя
+const createUser = async (req, res, next) => {
   const { name, email } = req.body;
 
   if (!name || !email) {
@@ -18,13 +16,14 @@ router.post('/users', async (req, res, next) => {
     }
 
     const newUser = await User.create({ name, email });
-    return res.status(201).json({ message: 'Пользователь успешно создан', user: newUser });
+    res.status(201).json({ message: 'Пользователь успешно создан', user: newUser });
   } catch (error) {
     next(error);
   }
-});
+};
 
-router.get('/users/:id', async (req, res, next) => {
+// Получение пользователя по ID
+const getUserById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -37,6 +36,9 @@ router.get('/users/:id', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  createUser,
+  getUserById,
+};
