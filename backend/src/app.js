@@ -6,6 +6,8 @@ const fs = require('fs');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
 const morganLogger = require('./middlewares/morganLogger');
+const passport = require('passport');
+require('./config/passport');
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.use(cors());
 app.use(morganLogger);
 app.use('/api', routes);
 app.use(errorHandler);
+app.use(passport.initialize());
 
 
 module.exports = app;
