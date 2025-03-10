@@ -39,14 +39,13 @@ const getEventById = async (req, res, next) => {
 
 // Создание мероприятия
 const createEvent = async (req, res, next) => {
-  const { title, description, date, category, createdBy } = req.body;
+  const { title, description, date, category} = req.body;
 
-  if (!title || !date || !category || !createdBy) {
+  if (!title || !date || !category) {
     return next(new ValidationError('Обязательные данные не переданы'));
   }
-
   try {
-    const event = await Event.create({ title, description, date, category, createdBy });
+    const event = await Event.create({ title, description, date, category, createdBy: req.user.id });
     res.status(201).json(event);
   } catch (error) {
     next(error);
@@ -56,9 +55,9 @@ const createEvent = async (req, res, next) => {
 // Обновление мероприятия
 const updateEvent = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, date, category, createdBy } = req.body;
+  const { title, description, date, category} = req.body;
 
-  if (!title || !date || !category || !createdBy) {
+  if (!title || !date || !category) {
     return next(new ValidationError('Обязательные данные не переданы'));
   }
 
@@ -67,7 +66,10 @@ const updateEvent = async (req, res, next) => {
     if (!event) {
       throw new NotFoundError('Мероприятие не найдено');
     }
-    await event.update({ title, description, date, category, createdBy });
+    if (req.user.role !== 'admin' && event.createdBy !== req.user.id) {
+      return next(new ForbiddenError('Можно редактировать только свои события'));
+    }
+    await event.update({ title, description, date, category});
     res.status(200).json(event);
   } catch (error) {
     next(error);
