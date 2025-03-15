@@ -1,5 +1,5 @@
-const passport = require('passport');
-
+//authMiddleware.js
+import passport from '../../config/passport.js';
 const authenticateJWT = passport.authenticate('jwt', { session: false });
 
 const authorizeRole = (roles) => (req, res, next) => {
@@ -9,4 +9,4 @@ const authorizeRole = (roles) => (req, res, next) => {
     next();
 };
 
-module.exports = { authenticateJWT, authorizeRole };
+export { authenticateJWT, authorizeRole };

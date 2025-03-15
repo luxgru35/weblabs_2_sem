@@ -1,9 +1,11 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const User = require('../models/user.model');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const { authenticateJWT, authorizeRole } = require('../middlewares/authMiddleware');
+//auth.js
+import { Router } from 'express';
+import { compare } from 'bcryptjs';
+import User from '../models/user.model.js';
+const router = Router();
+import pkg from 'jsonwebtoken';
+const { sign } = pkg;
+import { authenticateJWT, authorizeRole } from '../middlewares/authMiddleware.js';
 
 router.post('/register', authenticateJWT, authorizeRole(['admin']), async (req, res) => {
     const { email, name, password, role } = req.body;
@@ -29,15 +31,15 @@ router.post('/login', async (req, res) => {
         return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await compare(password, user.password);
 
     if (!isMatch) {
         return res.status(400).json({ message: 'Неверный пароль' });
     }
 
     const payload = { id: user.id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ token });
 });
-module.exports = router;
+export default router;

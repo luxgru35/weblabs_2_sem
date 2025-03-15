@@ -23,5 +23,5 @@ class ValidationError extends Error {
     }
   }
   
-  module.exports = { ValidationError, NotFoundError, DatabaseError };
+  export { ValidationError, NotFoundError, DatabaseError };
   

@@ -1,4 +1,5 @@
-module.exports = (err, req, res, next) => {
+//errorHandler.js
+export default (err, req, res, next) => {
     console.error(err);
   
     if (err.statusCode) {

@@ -1,14 +1,14 @@
-// routes/index.js
-const express = require('express');
-const userRoutes = require('./user.routes');
-const public = require('./public');
-const auth = require('./auth')
-const { authenticateJWT, authorizeRole } = require('../middlewares/authMiddleware');
+//index.js
+import { Router } from 'express';
+import userRoutes from './user.routes.js';
+import publicRoutes from './publicRoutes.js';
+import auth from './auth.js';
+import { authenticateJWT, authorizeRole } from '../middlewares/authMiddleware.js';
 
-const router = express.Router();
+const router = Router();
 
 // Подключаем маршруты пользователей и мероприятий
-router.use('/public', public);
+router.use('/public', publicRoutes);
 router.use('/users', authenticateJWT, authorizeRole(['admin']), userRoutes);
 router.use('/auth', auth);
-module.exports = router;
+export default router;
