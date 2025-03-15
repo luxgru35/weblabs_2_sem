@@ -1,5 +1,6 @@
-const { Event, User } = require('../models');
-const { ValidationError, NotFoundError } = require('../utils/errors');
+//event.controller.js
+import { Event, User } from '../models/index.js';
+import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 // Получение списка всех мероприятий
 const getAllEvents = async (req, res, next) => {
@@ -91,7 +92,7 @@ const deleteEvent = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   getAllEvents,
   getEventById,
   createEvent,

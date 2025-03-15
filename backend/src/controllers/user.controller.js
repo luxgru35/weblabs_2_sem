@@ -1,5 +1,6 @@
-const { User } = require('../models');
-const { ValidationError, NotFoundError } = require('../utils/errors');
+//user.controller.js
+import { User } from '../models/index.js';
+import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 // Создание пользователя
 const createUser = async (req, res, next) => {
@@ -38,7 +39,7 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   createUser,
   getUserById,
 };

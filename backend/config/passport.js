@@ -1,6 +1,6 @@
-const passport = require('passport');
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const User = require('../models/user.model');
+import passport from 'passport';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import {User} from '../src/models/index.js';
 
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,3 +19,5 @@ passport.use(new JwtStrategy(options, async (jwt_payload, done) => {
         return done(err, false);
     }
 }));
+
+export default passport;
