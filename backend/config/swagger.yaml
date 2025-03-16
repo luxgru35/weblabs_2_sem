@@ -31,8 +31,6 @@ paths:
                   format: date
                 category:
                   type: string
-                createdBy:
-                  type: string
       responses:
         '201':
           description: Мероприятие успешно создано
@@ -74,8 +72,6 @@ paths:
                   type: string
                   format: date
                 category:
-                  type: string
-                createdBy:
                   type: string
       responses:
         '200':
@@ -128,3 +124,61 @@ paths:
           description: Пользователь найден
         '404':
           description: Пользователь не найден
+
+  /auth/register:
+    post:
+      summary: Регистрация нового пользователя (только для администратора)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, admin]
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Пользователь с таким email уже существует
+
+  /auth/login:
+    post:
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная авторизация, возвращает токен
+        '400':
+          description: Ошибка валидации (отсутствует email или пароль)
+        '404':
+          description: Пользователь не найден
+        '401':
+          description: Неверный пароль
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

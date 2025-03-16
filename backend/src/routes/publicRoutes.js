@@ -1,9 +1,9 @@
 //publicRoutes.js
 import { Router } from 'express';
-import eventRoutes from './event.routes.js';
+import { getAllEvents, getEventById } from '../controllers/event.controller.js'; 
 const router = Router();
-import { authenticateJWT } from '../middlewares/authMiddleware.js';
 
 // Публичный маршрут для получения всех событий
-router.use('/events', authenticateJWT, eventRoutes); 
+router.get('/events', getAllEvents);
+router.get('/events/:id', getEventById);
 export default router;
