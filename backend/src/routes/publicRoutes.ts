@@ -1,9 +1,8 @@
 //publicRoutes.js
 import { Router } from 'express';
-import { getAllEvents, getEventById } from '../controllers/event.controller.js'; 
+import { getAllEvents, getEventById } from '@controllers/event.controller';
 const router = Router();
 
-// Публичный маршрут для получения всех событий
 router.get('/events', getAllEvents);
 router.get('/events/:id', getEventById);
 export default router;
