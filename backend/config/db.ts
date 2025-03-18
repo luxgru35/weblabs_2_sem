@@ -1,19 +1,20 @@
-//db.js
+// db.ts
 import { Sequelize } from 'sequelize';
+import env from './env.js'; // Импортируем env-переменные
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  env.DB_NAME, // Используем env-переменные
+  env.DB_USER,
+  env.DB_PASSWORD,
   {
-    host: process.env.DB_HOST,
+    host: env.DB_HOST,
     dialect: 'postgres',
-    port: process.env.DB_PORT,
+    port: parseInt(env.DB_PORT, 10), // Преобразуем порт в число
     logging: false, // Отключаем SQL-логи в консоли
-  }
+  },
 );
 
-const testConnection = async () => {
+const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
     console.log('Database connected successfully.');
