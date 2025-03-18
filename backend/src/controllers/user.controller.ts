@@ -1,7 +1,7 @@
 // user.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../models/index.js';
-import { ValidationError, NotFoundError } from '../utils/errors.js';
+import { User } from '@models/index';
+import { ValidationError, NotFoundError } from '@utils/errors';
 
 interface CreateUserRequestBody {
   name: string;

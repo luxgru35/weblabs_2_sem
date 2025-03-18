@@ -1,7 +1,7 @@
 //server.ts
-import env from '../config/env.js';
-import app from './app.js';
-import { sequelize, testConnection } from '../config/db.js';
+import env from '@config/env';
+import app from './app';
+import { sequelize, testConnection } from '@config/db';
 import { Request, Response } from 'express';
 
 const PORT = env.PORT || 5000;

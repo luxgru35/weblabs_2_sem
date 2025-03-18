@@ -6,7 +6,7 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
-} from '../controllers/event.controller.js';
+} from '@controllers/event.controller';
 
 const router = Router();
 

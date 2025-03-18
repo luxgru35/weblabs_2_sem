@@ -1,6 +1,6 @@
 // event.model.ts
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../../config/db.js';
+import { sequelize } from '@config/db';
 
 interface EventAttributes {
   id: number;

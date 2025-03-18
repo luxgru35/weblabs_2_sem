@@ -1,6 +1,6 @@
 // user.model.ts
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../../config/db.js';
+import { sequelize } from '@config/db';
 import { hash } from 'bcryptjs';
 
 interface UserAttributes {

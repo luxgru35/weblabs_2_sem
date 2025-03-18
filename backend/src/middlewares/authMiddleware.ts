@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import passport from '../../config/passport.js';
+import passport from '@config/passport';
 
 const authenticateJWT: RequestHandler = passport.authenticate('jwt', {
   session: false,

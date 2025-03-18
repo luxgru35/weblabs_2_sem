@@ -1,13 +1,10 @@
 //index
 import { Router } from 'express';
-import userRoutes from './user.routes.js';
-import publicRoutes from './publicRoutes.js';
-import eventRoutes from './event.routes.js';
-import auth from './auth.js';
-import {
-  authenticateJWT,
-  authorizeRole,
-} from '../middlewares/authMiddleware.js';
+import userRoutes from './user.routes';
+import publicRoutes from './publicRoutes';
+import eventRoutes from './event.routes';
+import auth from './auth';
+import { authenticateJWT, authorizeRole } from '@middlewares/authMiddleware';
 
 const router = Router();
 

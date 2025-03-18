@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { compare } from 'bcryptjs';
-import User from '../models/user.model.js';
+import User from '@models/user.model';
 import jwt from 'jsonwebtoken';
 import {
   authenticateJWT,

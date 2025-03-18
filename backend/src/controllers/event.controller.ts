@@ -1,6 +1,6 @@
 //event.controller
 import { Request, Response, NextFunction } from 'express';
-import { Event, User } from '../models/index.js';
+import { Event, User } from '@models/index';
 import {
   ValidationError,
   NotFoundError,

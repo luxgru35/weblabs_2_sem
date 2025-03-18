@@ -4,10 +4,10 @@ import cors from 'cors';
 import { JsonObject, serve, setup } from 'swagger-ui-express';
 import { load } from 'js-yaml';
 import { readFileSync } from 'fs';
-import routes from './routes/index.js';
-import errorHandler from './middlewares/errorHandler.js';
-import morganLogger from './middlewares/morganLogger.js';
-import passport from '../config/passport.js';
+import routes from '@routes/index';
+import errorHandler from '@middlewares/errorHandler';
+import morganLogger from '@middlewares/morganLogger';
+import passport from '@config/passport';
 
 const app = express();
 

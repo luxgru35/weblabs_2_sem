@@ -1,6 +1,6 @@
 //publicRoutes.js
 import { Router } from 'express';
-import { getAllEvents, getEventById } from '../controllers/event.controller.js';
+import { getAllEvents, getEventById } from '@controllers/event.controller';
 const router = Router();
 
 router.get('/events', getAllEvents);
