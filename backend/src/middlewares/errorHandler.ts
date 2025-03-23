@@ -1,5 +1,5 @@
 //errorhandler
-import { Request, Response, ErrorRequestHandler } from 'express';
+import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -9,6 +9,7 @@ const errorHandler: ErrorRequestHandler = (
   err: CustomError,
   req: Request,
   res: Response,
+  next: NextFunction,
 ): void => {
   console.error(err);
 

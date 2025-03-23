@@ -41,10 +41,10 @@
   },
   "scripts": {
     "tsc": "tsc",
-    "lint": "eslint ./backend/**/*.{js,ts} --fix",
-    "dev": "nodemon --ext ts --exec tsx ./backend/src/server.ts",
-    "format": "prettier --write ./backend/**/*.{js,ts,json,md}",
-    "check": "eslint ./backend/**/*.{js,ts}",
+    "lint": "eslint ./**/*.{js,ts} --fix",
+    "dev": "nodemon --ext ts --exec tsx ./src/server.ts",
+    "format": "prettier --write ./**/*.{js,ts,json,md}",
+    "check": "eslint ./**/*.{js,ts}",
     "prepare": "husky install"
   },
   "lint-staged": {
