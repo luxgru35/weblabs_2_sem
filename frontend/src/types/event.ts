@@ -1,6 +1,8 @@
 export interface Event {
+    category: string;
     id: string;
-    name: string;
+    title: string;
     description: string;
     date: string;
+    createdBy: string;
   }

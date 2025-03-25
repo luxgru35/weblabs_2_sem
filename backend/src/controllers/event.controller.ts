@@ -128,6 +128,12 @@ const deleteEvent = async (
     if (!event) {
       throw new NotFoundError('Мероприятие не найдено');
     }
+
+    if (req.user.role !== 'admin' && event.createdBy !== req.user.id) {
+      next(new ForbiddenError('Можно удалять только свои события'));
+      return;
+    }
+
     await event.destroy();
     res.status(204).send();
   } catch (error) {

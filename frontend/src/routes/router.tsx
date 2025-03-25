@@ -5,6 +5,7 @@ import Login from "@pages/Login/Login";
 import Register from "@pages/Register/Register";
 import Events from "@pages/Events/Events";
 import NotFound from "@pages/NotFound/NotFound";
+import ForgotPasswordPage from "@pages/ForgotPassword/ForgotPasswordPage"
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/events",
     element: <Events />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordPage />,
   },
   {
     path: "*",

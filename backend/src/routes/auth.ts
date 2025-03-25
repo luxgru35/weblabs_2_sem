@@ -61,6 +61,32 @@ router.post(
   },
 );
 
+router.get(
+  '/me',
+  authenticateJWT,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: 'Неавторизованный запрос' });
+        return;
+      }
+
+      const user = await User.findByPk(req.user.id, {
+        attributes: ['id', 'name', 'email', 'role'],
+      });
+
+      if (!user) {
+        res.status(404).json({ message: 'Пользователь не найден' });
+        return;
+      }
+
+      res.json(user); // Убираем return перед res.json()
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 // Вход пользователя
 router.post(
   '/login',
