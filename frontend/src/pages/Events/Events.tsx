@@ -1,4 +1,4 @@
-//events.tsx
+// events.tsx
 import { useEffect, useState } from 'react';
 import { fetchEvents, createEvent } from '@api/eventService';
 import { getUser } from '@api/authService';
@@ -7,19 +7,23 @@ import EventList from './components/EventList';
 import { Link } from 'react-router-dom';
 import CreateEventModal from './components/CreateEventModal';
 import { User } from '../../types/user';
-
+import { Event } from '../../types/event'
 
 const Events = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('все');
+
   const loadEvents = async () => {
     setLoading(true);
     try {
       const data = await fetchEvents();
       setEvents(data);
+      setFilteredEvents(data);
     } catch (error) {
       setError('Ошибка при загрузке мероприятий');
       console.error('Error fetching events:', error);
@@ -39,6 +43,16 @@ const Events = () => {
       loadEvents();
     } catch (error) {
       console.error('Ошибка при создании мероприятия:', error);
+    }
+  };
+
+  // Фильтрация мероприятий по категории
+  const filterEvents = (category: string) => {
+    setSelectedCategory(category);
+    if (category === 'все') {
+      setFilteredEvents(events);
+    } else {
+      setFilteredEvents(events.filter(event => event.category === category));
     }
   };
 
@@ -87,12 +101,26 @@ const Events = () => {
       <main className={styles.mainContent}>
         <div className={styles.actionsBar}>
           <h2 className={styles.sectionTitle}>Все мероприятия</h2>
-          {user && (
-            <button onClick={() => setIsModalOpen(true)} 
-            className={styles.createButton}>
-              + Создать мероприятие
-            </button>
-          )}
+          <div className={styles.filterControls}>
+            <select
+              value={selectedCategory}
+              onChange={(e) => filterEvents(e.target.value)}
+              className={styles.categoryFilter}
+            >
+              <option value="все">Все категории</option>
+              <option value="концерт">Концерт</option>
+              <option value="лекция">Лекция</option>
+              <option value="выставка">Выставка</option>
+            </select>
+            {user && (
+              <button 
+                onClick={() => setIsModalOpen(true)} 
+                className={styles.createButton}
+              >
+                + Создать мероприятие
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -104,9 +132,9 @@ const Events = () => {
           <p className={styles.error}>{error}</p>
         ) : (
           <EventList 
-          events={events} 
-          onEventUpdate={loadEvents} 
-          user={user}
+            events={filteredEvents} 
+            onEventUpdate={loadEvents} 
+            user={user}
           />
         )}
         {isModalOpen && (

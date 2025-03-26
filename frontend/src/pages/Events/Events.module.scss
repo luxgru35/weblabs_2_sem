@@ -199,6 +199,31 @@
   }
 }
 
+.filterControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.categoryFilter {
+  padding: 0.6rem 1rem;
+  border: 2px solid $primary-color;
+  background: white;
+  color: $dark-color;
+  font-size: 0.9rem;
+  cursor: pointer;
+  @include transition;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+  }
+  
+  &:hover {
+    background: rgba($primary-color, 0.1);
+  }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
