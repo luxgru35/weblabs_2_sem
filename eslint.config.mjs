@@ -9,20 +9,20 @@ export default [
     files: ["**/*.{js,mjs,cjs,ts}"],
     languageOptions: {
       globals: {
-        ...globals.browser, // Глобальные переменные для браузера
-        ...globals.node, // Глобальные переменные для Node.js
+        ...globals.browser, 
+        ...globals.node, 
       },
-      parser: "@typescript-eslint/parser", // Парсер для TypeScript
+      parser: "@typescript-eslint/parser", 
     },
     plugins: {
-      prettier: prettierPlugin, // Подключаем плагин Prettier
+      prettier: prettierPlugin, 
     },
     rules: {
-      "@typescript-eslint/explicit-function-return-type": "off", // Отключаем правило
-      "@typescript-eslint/no-unused-vars": ["error"], // Включаем правило
-      "prettier/prettier": "error", // Правило для Prettier
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-unused-vars": ["error"],
+      "prettier/prettier": "error", 
     },
   },
-  pluginJs.configs.recommended, // Базовая конфигурация ESLint
-  ...tseslint.configs.recommended, // Рекомендуемая конфигурация для TypeScript
+  pluginJs.configs.recommended, 
+  ...tseslint.configs.recommended, 
 ];
