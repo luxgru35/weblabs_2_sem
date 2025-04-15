@@ -1,39 +1,6 @@
+// Home.module.scss
+@use "../../styles/mixins" as *;
 @use "sass:color";
-// Variables
-$primary-color: #4361ee;
-$secondary-color: #3f37c9;
-$accent-color: #4cc9f0;
-$light-color: #f8f9fa;
-$dark-color: #212529;
-$success-color: #4bb543;
-$error-color: #ff3333;
-
-// Mixins
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-@mixin card-shadow {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-@mixin transition($property: all, $duration: 0.3s) {
-  transition: $property $duration ease;
-}
-
-// Animations
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes gradientBackground {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 
 // Main Styles
 .homePage {
@@ -41,7 +8,7 @@ $error-color: #ff3333;
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(-45deg, #f8f9fa, #e9ecef, #dee2e6, #ced4da);
+  background: linear-gradient(-45deg, $light-color, #e9ecef, #dee2e6, #ced4da);
   background-size: 400% 400%;
   animation: gradientBackground 15s ease infinite;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -78,7 +45,7 @@ $error-color: #ff3333;
       object-fit: contain;
       margin-bottom: 1rem;
       animation: float 4s ease-in-out infinite;
-      filter: drop-shadow(0 5px 15px rgba(67, 97, 238, 0.3));
+      filter: drop-shadow(0 5px 15px rgba($primary-color, 0.3));
     }
     
     .title {
@@ -153,10 +120,6 @@ $error-color: #ff3333;
   .actions {
     @include flex-center;
     gap: 1rem;
-    
-    button {
-      @include transition;
-    }
   }
 }
 
@@ -199,7 +162,6 @@ $error-color: #ff3333;
   }
 }
 
-// Button Styles
 .authButton {
   padding: 0.8rem 1.5rem;
   border-radius: 50px;
@@ -218,6 +180,7 @@ $error-color: #ff3333;
 }
 
 .registerButton {
+  @extend .authButton;
   background: $primary-color;
   color: white;
   
@@ -228,40 +191,28 @@ $error-color: #ff3333;
 }
 
 .primaryButton {
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  @include transition;
+  @extend .authButton;
   border: none;
   background: $primary-color;
   color: white;
   
   &:hover {
     background: $secondary-color;
-    transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba($primary-color, 0.3);
   }
 }
 
 .logoutButton {
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  @include transition;
-  border: 2px solid $error-color;
-  background: white;
+  @extend .authButton;
+  border-color: $error-color;
   color: $error-color;
   
   &:hover {
     background: $error-color;
     color: white;
-    transform: translateY(-2px);
   }
 }
 
-// Features Section
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -286,6 +237,7 @@ $error-color: #ff3333;
     .featureIcon {
       font-size: 3rem;
       margin-bottom: 1rem;
+      color: $primary-color;
     }
     
     h3 {
@@ -322,4 +274,20 @@ $error-color: #ff3333;
   .features {
     grid-template-columns: 1fr;
   }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes gradientBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
