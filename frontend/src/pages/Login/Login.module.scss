@@ -1,8 +1,26 @@
 //Login.module.scss
 @use "../../styles/mixins" as *;
-
+.appName {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: black; // или любой другой цвет по вашему выбору
+    text-decoration: underline;
+  }
+  
+}
+.logo {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
 .loginPage {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,7 +31,7 @@
   animation: gradientBackground 15s ease infinite;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: $dark-color;
-  padding: 2rem;
+  padding: 0;
 
   .backgroundAnimation {
     position: absolute;
@@ -36,6 +54,7 @@
     @include card-shadow;
     position: relative;
     z-index: 1;
+    margin:0
   }
 
   .logoSection {

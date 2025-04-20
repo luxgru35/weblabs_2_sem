@@ -1,0 +1,323 @@
+// ProfilePage.module.scss
+@use "../../styles/mixins" as *;
+@use "sass:color";
+
+
+.backButton {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  padding: 0.6rem 1.2rem;
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  &::before {
+    content: '←';
+    font-size: 1rem;
+    margin-right: 0.3rem;
+  }
+}
+
+.profileContainer {
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(-45deg, $light-color, #e9ecef, #dee2e6, #ced4da);
+  background-size: 400% 400%;
+  animation: gradientBackground 15s ease infinite;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: $dark-color;
+
+  .backgroundAnimation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/cubes.png');
+    opacity: 0.05;
+    z-index: 0;
+  }
+}
+
+.profileContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.profileHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .profileTitle {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    background: linear-gradient(to right, $primary-color, $secondary-color);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .profileSubtitle {
+    font-size: 1.2rem;
+    color: color.adjust($dark-color, $lightness: 20%);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profileCard {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  @include card-shadow;
+  @include transition;
+  animation: fadeInUp 0.5s ease-out;
+  
+  &:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  .cardTitle {
+    font-size: 1.8rem;
+    color: $primary-color;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba($primary-color, 0.2);
+  }
+}
+
+.userInfo {
+  .infoItem {
+    margin-bottom: 1.5rem;
+    
+    .infoLabel {
+      font-weight: 600;
+      color: $dark-color;
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+    
+    .infoValue {
+      font-size: 1.1rem;
+      color: color.adjust($dark-color, $lightness: 10%);
+      padding-left: 1rem;
+      border-left: 3px solid $primary-color;
+    }
+  }
+}
+
+.eventsSection {
+  .eventsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    .eventsCount {
+      background: $primary-color;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.eventsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+  list-style: none;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.eventCard {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  @include card-shadow;
+  @include transition;
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: backwards;
+  
+  &:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  .eventTitle {
+    font-size: 1.3rem;
+    color: $primary-color;
+    margin: 0 0 0.5rem;
+  }
+  
+  .eventMeta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    
+    .eventCategory {
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+    }
+    
+    .eventDate {
+      color: color.adjust($dark-color, $lightness: 30%);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      
+      &::before {
+        content: "📅";
+        margin-right: 0.3rem;
+      }
+    }
+  }
+  
+  .eventDescription {
+    color: color.adjust($dark-color, $lightness: 20%);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+}
+
+.editButton {
+  padding: 0.6rem 1.2rem;
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+    transform: none; // Убираем трансформацию при наведении
+    box-shadow: none; // Убираем тень при наведении
+  }
+  
+  &::before {
+    content: '✏️';
+    font-size: 1rem;
+  }
+}
+.emptyState {
+  @include flex-center;
+  flex-direction: column;
+  padding: 3rem;
+  background: white;
+  border-radius: 15px;
+  @include card-shadow;
+  text-align: center;
+  
+  .emptyIcon {
+    font-size: 3rem;
+    color: color.adjust($dark-color, $lightness: 50%);
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    color: color.adjust($dark-color, $lightness: 30%);
+    margin-bottom: 1rem;
+  }
+  
+  .emptyText {
+    color: color.adjust($dark-color, $lightness: 30%);
+    max-width: 400px;
+    line-height: 1.6;
+  }
+}
+
+.errorMessage {
+  padding: 1rem;
+  background: rgba($error-color, 0.1);
+  color: $error-color;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-left: 4px solid $error-color;
+}
+
+.loading {
+  @include flex-center;
+  height: 200px;
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba($primary-color, 0.2);
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes gradientBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

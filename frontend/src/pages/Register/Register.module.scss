@@ -38,7 +38,24 @@
     z-index: 1;
   }
   
-
+  .appName {
+    cursor: pointer;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: black;
+      text-decoration: underline;
+    }
+  }
+  
+  .logo {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
   .logoSection {
     flex: 1;
     background: linear-gradient(135deg, $primary-color, $secondary-color);

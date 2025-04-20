@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../../types/user';
-import { login, register, getUser, logout, verifyToken } from '../../api/authService';
+import { login, register, getUser, logout, verifyToken, updateUser, UpdateUserData} from '../../api/authService';
 
 interface AuthState {
   user: User | null;
@@ -21,28 +21,28 @@ const initialState: AuthState = {
 };
 
 export const checkAuthToken = createAsyncThunk(
-    'auth/verifyToken',
-    async (_, { rejectWithValue }) => {
-      try {
-        const isValid = await verifyToken();
-        return isValid;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          return rejectWithValue(error.response?.data?.message || 'Ошибка проверки токена');
-        }
-        return rejectWithValue('Неизвестная ошибка');
-      }
+  'auth/verifyToken',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return { isValid: false };
+      
+      const { isValid, user } = await verifyToken();
+      return { isValid, user };
+    } catch (error) {
+      return rejectWithValue('Ошибка проверки авторизации');
     }
-  );
+  }
+);
   
  
-// Создаем асинхронный thunk для входа пользователя
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await login(credentials.email, credentials.password);
-      return response;
+      const user = await login(credentials.email, credentials.password);
+      localStorage.setItem('authToken', user.token);  // Сохраняем токен
+      return user;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         return rejectWithValue(error.response?.data?.message || 'Ошибка входа');
@@ -52,7 +52,18 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Создаем асинхронный thunk для регистрации
+export const logoutUser = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      await logout();
+      return null;
+    } catch (error) {
+      return rejectWithValue('Ошибка при выходе');
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData: { email: string; name: string; password: string; role?: string; firstName: string; lastName: string; gender: 'male' | 'female'; birthDate: string }, { rejectWithValue }) => {
@@ -76,6 +87,32 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUser',
+  async ({ userId, userData }: { userId: number; userData: UpdateUserData }, { rejectWithValue }) => {
+    try {
+      const updatedUser = await updateUser(userId, userData);
+      return updatedUser;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || 'Ошибка обновления данных');
+      }
+      return rejectWithValue('Неизвестная ошибка');
+    }
+  }
+);
+export const sendResetEmail = createAsyncThunk(
+  'auth/sendResetEmail',
+  async (email: string, thunkAPI) => {
+    try {
+      const response = await axios.post('/api/auth/forgot-password', { email });
+      return response.data.message;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Ошибка отправки');
+    }
+  }
+);
+
 
 // Создаем асинхронный thunk для получения данных пользователя
 export const fetchUser = createAsyncThunk(
@@ -93,15 +130,16 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
+
+
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Синхронный редьюсер для выхода
-    logoutUser: (state) => {
-      logout();
-      state.user = null;
-      state.isAuthenticated = false;
+    resetError: (state) => {
+      state.isError = false;
+      state.errorMessage = null;
     },
   },
   extraReducers: (builder) => {
@@ -112,6 +150,17 @@ const authSlice = createSlice({
         state.isError = false;
         state.errorMessage = null;
       })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        localStorage.removeItem('authToken');
+      })
+      
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isError = true;
+        state.errorMessage = action.payload as string;
+      })
+      
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
@@ -157,18 +206,39 @@ const authSlice = createSlice({
         state.isError = true;
         state.errorMessage = action.payload as string;
       })
+      .addCase(checkAuthToken.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(checkAuthToken.fulfilled, (state, action) => {
-        state.isAuthenticated = action.payload;
-        if (!action.payload) {
-          state.user = null;
+        state.isAuthenticated = action.payload.isValid;
+        state.user = action.payload.user || null;
+        state.isLoading = false;
+      
+        if (!action.payload.isValid) {
+          localStorage.removeItem('authToken');
         }
       })
+      
       .addCase(checkAuthToken.rejected, (state) => {
         state.isAuthenticated = false;
         state.user = null;
+        state.isLoading = false;
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.errorMessage = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload as string;
       });
   },
 });
-
-export const { logoutUser } = authSlice.actions;
+export const { resetError } = authSlice.actions;
 export default authSlice.reducer;

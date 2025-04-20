@@ -14,6 +14,16 @@ interface CreateUserRequestBody {
   gender: 'male' | 'female';
   birthDate: string;
 }
+interface UpdateUserRequestBody {
+  name?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  gender?: 'male' | 'female';
+  birthDate?: string;
+  role?: 'user' | 'admin';
+}
 // Создание пользователя
 const createUser = async (
   req: Request<
@@ -72,7 +82,74 @@ const createUser = async (
     next(error);
   }
 };
+const updateUser = async (
+  req: Request<{ id: string }, unknown, UpdateUserRequestBody>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params;
+  const { name, email, firstName, lastName, middleName, gender, birthDate } =
+    req.body;
 
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден.');
+    }
+
+    // Проверка прав доступа
+    if (req.user?.role !== 'admin' && req.user?.id !== user.id) {
+      throw new ValidationError(
+        'Недостаточно прав для редактирования этого пользователя.',
+      );
+    }
+
+    // Если это не админ, запрещаем менять роль и другие защищенные поля
+    const isAdmin = req.user?.role === 'admin';
+    const updatedFields = {
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(middleName !== undefined && { middleName }),
+      ...(gender && { gender }),
+      ...(birthDate && { birthDate }),
+      // Админ может обновлять роль, обычный пользователь - нет
+      ...(isAdmin && req.body.role && { role: req.body.role }),
+    };
+
+    // Проверяем email на уникальность
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        throw new ValidationError(
+          'Email уже используется другим пользователем.',
+        );
+      }
+    }
+
+    await user.update(updatedFields);
+
+    const userResponse = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      middleName: user.middleName,
+      gender: user.gender,
+      birthDate: user.birthDate,
+    };
+
+    res.status(200).json({
+      message: 'Данные пользователя успешно обновлены',
+      user: userResponse,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 // Получение пользователя по ID
 const getUserById = async (
   req: Request<{ id: string }>,
@@ -93,4 +170,4 @@ const getUserById = async (
   }
 };
 
-export { createUser, getUserById };
+export { createUser, getUserById, updateUser };

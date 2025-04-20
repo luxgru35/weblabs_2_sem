@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getUser } from '@api/authService';
 import { User } from '../../types/user';
+import { fetchUser, logoutUser } from './authSlice';
 
 interface UserState {
   user: User | null;
@@ -29,6 +30,19 @@ const userSlice = createSlice({
       })
       .addCase(loadUser.rejected, (state) => {
         state.error = 'Ошибка при загрузке пользователя';
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchUser.rejected, (state) => {
+        state.user = null;
+        state.error = 'Ошибка при загрузке пользователя';
+      })
+      // Добавляем реакцию на выход
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.error = null;
       });
   },
 });

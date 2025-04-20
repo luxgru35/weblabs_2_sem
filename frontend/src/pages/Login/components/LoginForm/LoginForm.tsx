@@ -1,31 +1,30 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '@api/authService';
-import { setToken } from '@utils/storage';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { loginUser,checkAuthToken } from '../../../../store/slices/authSlice';
 import styles from './LoginForm.module.scss';
 
 const LoginForm = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { isLoading, isError, errorMessage } = useAppSelector((state) => state.auth);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      const { token } = await login(email, password);
-      setToken(token);
-      navigate('/events');
-    } catch (error) {
-      setError('Неверный email или пароль. Пожалуйста, попробуйте снова.');
-      console.error('Login failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(loginUser({ email, password }))
+      .unwrap()
+      .then(() => {
+        return dispatch(checkAuthToken());
+      })
+      .then(() => {
+        navigate('/events');
+      })
+      .catch(() => {
+        // Обработка ошибок
+      });
   };
 
   return (
@@ -56,7 +55,7 @@ const LoginForm = () => {
         />
       </div>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {isError && <div className={styles.error}>{errorMessage}</div>}
 
       <button 
         type="submit" 

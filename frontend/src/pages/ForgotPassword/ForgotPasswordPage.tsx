@@ -1,15 +1,26 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAppDispatch} from '../../store/hooks';
+import { sendResetEmail } from '../../store/slices/authSlice';
 import styles from './ForgotPassword.module.scss';
 
 const ForgotPasswordPage = () => {
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Здесь будет логика отправки email для восстановления
-    setMessage('Инструкции по восстановлению пароля отправлены на ваш email');
+    setMessage('');
+    setError('');
+
+    try {
+      const response = await dispatch(sendResetEmail(email)).unwrap();
+      setMessage(response);
+    } catch (err: any) {
+      setError(err);
+    }
   };
 
   return (
@@ -45,6 +56,7 @@ const ForgotPasswordPage = () => {
           </button>
           
           {message && <p className={styles.message}>{message}</p>}
+          {error && <p className={styles.error}>{error}</p>}
           
           <Link to="/login" className={styles.backLink}>
             ← Вернуться к странице входа

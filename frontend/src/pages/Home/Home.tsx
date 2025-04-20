@@ -1,35 +1,30 @@
 import { useEffect, useState } from "react";
-import { getUser, logout } from "@api/authService";
+
+import { useAppDispatch,useAppSelector } from "../../store/hooks";
+import { checkAuthToken, logoutUser } from "../../store/slices/authSlice"; // импортируем необходимые экшены
 import styles from "./Home.module.scss";
 import { Link } from "react-router-dom";
 
 const Home = () => {
-  const [user, setUser] = useState<{ name: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    getUser()
-      .then((userData) => {
-        setUser(userData);
-      })
-      .catch((error) => {
-        console.error("Ошибка при загрузке пользователя:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+    dispatch(checkAuthToken());
+  }, [dispatch]);
+  
 
   const handleLogout = () => {
-    logout();
-    setUser(null);
+    dispatch(logoutUser()); 
   };
+
+  
 
   return (
     <div className={styles.homePage}>
       <div className={styles.backgroundAnimation}></div>
-      
+
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <img
@@ -45,18 +40,18 @@ const Home = () => {
           отслеживайте события с беспрецедентной легкостью и эффективностью.
         </p>
 
-        {loading ? (
+        {isLoading ? (
           <div className={styles.loader}>
             <div className={styles.spinner}></div>
           </div>
-        ) : user ? (
+        ) : isAuthenticated ? (
           <div className={styles.userSection}>
             <div className={styles.userGreeting}>
               <span className={styles.welcome}>Добро пожаловать обратно,</span>
-              <span className={styles.userName}>{user.name}</span>
+              <span className={styles.userName}>{user?.name}</span>
             </div>
             <div className={styles.actions}>
-              <button 
+              <button
                 className={styles.logoutButton}
                 onClick={handleLogout}
               >
@@ -78,7 +73,7 @@ const Home = () => {
                 </button>
               </Link>
               <Link to="/register">
-                <button 
+                <button
                   className={`${styles.authButton} ${styles.registerButton}`}
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}

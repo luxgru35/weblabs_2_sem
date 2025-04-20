@@ -47,15 +47,19 @@ router.post(
         role,
         firstName,
         lastName,
+        middleName,
         gender,
         birthDate,
       } = req.body;
+
+      // Проверка формата даты
       if (!birthDate || isNaN(Date.parse(birthDate))) {
         res.status(400).json({ message: 'Неверный формат даты рождения' });
         return;
       }
-      const existingUser = await User.findOne({ where: { email } });
 
+      // Проверка существующего пользователя
+      const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         res
           .status(400)
@@ -63,28 +67,35 @@ router.post(
         return;
       }
 
+      // Создание пользователя с ВСЕМИ переданными данными
       const user = await User.create({
         email,
         name,
         password,
         role: role || 'user',
-        firstName: '',
-        lastName: '',
-        gender: 'male',
+        firstName, // Используем переданное значение
+        lastName, // Используем переданное значение
+        middleName,
+        gender, // Используем переданное значение
         birthDate,
       });
 
+      // Не возвращаем пароль в ответе
+      const userResponse = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        gender: user.gender,
+        birthDate: user.birthDate,
+      };
+
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
-        user: {
-          name,
-          email,
-          role: user.role,
-          firstName,
-          lastName,
-          gender,
-          birthDate,
-        },
+        user: userResponse,
       });
     } catch (error) {
       console.error('Error during registration:', error);

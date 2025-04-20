@@ -1,7 +1,7 @@
 //EventList.tsx
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../store/store';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { RootState } from '../../../store/store';
 import { loadEvents, removeEvent, updateEventThunk } from '../../../store/slices/eventSlice';
 import styles from './EventList.module.scss';
 import { Event } from '../../../types/event';
@@ -10,12 +10,12 @@ import { FC } from 'react';
 interface EventListProps {
   events: Event[];
   onEventUpdate: () => void;
-  user: any; // Adjust the type for user if needed
+  user: any;
 }
 const EventList: FC<EventListProps> = (props) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const { events } = props;
-  const { user } = useSelector((state: RootState) => state.user);
+  const { user } = useAppSelector((state: RootState) => state.user);
 
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
@@ -51,11 +51,12 @@ const EventList: FC<EventListProps> = (props) => {
     setFormData({
       title: event.title,
       description: event.description,
-      date: event.date,
+      date: new Date(event.date).toISOString().split('T')[0],
       category: event.category
     });
     setError('');
   };
+  
 
   const handleSave = async () => {
     if (!editingEvent) return;
@@ -143,12 +144,17 @@ const EventList: FC<EventListProps> = (props) => {
                     onChange={(e) => setFormData({...formData, date: e.target.value})}
                     className={styles.inputField}
                   />
-                  <input
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="Категория"
-                    className={styles.inputField}
-                  />
+                  <select
+  value={formData.category}
+  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+  className={styles.inputField}
+>
+  <option value="">Выберите категорию</option>
+  <option value="концерт">Концерт</option>
+  <option value="лекция">Лекция</option>
+  <option value="выставка">Выставка</option>
+</select>
+
                   <div className={styles.formActions}>
                     <button onClick={handleSave} className={styles.saveButton}>
                       Сохранить

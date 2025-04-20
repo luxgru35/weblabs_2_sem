@@ -1,49 +1,51 @@
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store/store';
-import { loadEvents, setCategory, addEvent, openModal, closeModal } from '../../store/slices/eventSlice';
+import { useEffect, useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  loadEvents,
+  setCategory,
+  addEvent,
+  openModal,
+  closeModal,
+} from '../../store/slices/eventSlice';
 import { loadUser } from '../../store/slices/userSlice';
 import styles from './Events.module.scss';
 import EventList from './components/EventList';
 import CreateEventModal from './components/CreateEventModal';
 import { Link } from 'react-router-dom';
+import { Event } from '../../types/event';
 
 const Events = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { items: events, loading, error, selectedCategory, isModalOpen } = useSelector(
-    (state: RootState) => state.events
-  );
-  const { user } = useSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
+  const {
+    items: events,
+    loading,
+    error,
+    selectedCategory,
+    isModalOpen,
+  } = useAppSelector((state) => state.events);
+  const { user } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(loadEvents());
     dispatch(loadUser());
   }, [dispatch]);
 
-  const handleCreateEvent = async (eventData: {
-    title: string;
-    description: string;
-    date: string;
-    category: string;
-  }) => {
-    dispatch(addEvent({ ...eventData, createdBy: user?.id || 'unknown' }));
+  const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'createdBy'>): Promise<void> => {
+    await dispatch(addEvent({ ...eventData, createdBy: user?.id || 'unknown' }));
   };
 
-  const filterEvents = (category: string) => {
-    dispatch(setCategory(category));
-  };
-
-  const filteredEvents =
-    selectedCategory === 'все'
+  const filteredEvents = useMemo(() => {
+    return selectedCategory === 'все'
       ? events
       : events.filter((event) => event.category === selectedCategory);
+  }, [events, selectedCategory]);
 
   return (
     <div className={styles.eventsPage}>
       <div className={styles.backgroundAnimation}></div>
 
       <header className={styles.header}>
-        <div className={styles.logoContainer}>
+        <Link to="/" className={styles.logoContainer}>
           <img
             src="https://cdn-icons-png.flaticon.com/512/2452/2452565.png"
             alt="Логотип"
@@ -52,14 +54,16 @@ const Events = () => {
           <h1 className={styles.title}>
             Мои<span>Мероприятия</span>
           </h1>
-        </div>
+        </Link>
 
         {user ? (
           <div className={styles.userSection}>
-            <div className={styles.userGreeting}>
-              <span className={styles.welcome}>Добро пожаловать,</span>
-              <span className={styles.userName}>{user.name}</span>
-            </div>
+            <Link to="/profile" className={styles.profileButton}>
+              <div className={styles.userGreeting}>
+                <span className={styles.welcome}>Добро пожаловать,</span>
+                <span className={styles.userName}>{user.name}</span>
+              </div>
+            </Link>
           </div>
         ) : (
           <div className={styles.authSection}>
@@ -81,7 +85,7 @@ const Events = () => {
           <div className={styles.filterControls}>
             <select
               value={selectedCategory}
-              onChange={(e) => filterEvents(e.target.value)}
+              onChange={(e) => dispatch(setCategory(e.target.value))}
               className={styles.categoryFilter}
             >
               <option value="все">Все категории</option>
@@ -90,10 +94,7 @@ const Events = () => {
               <option value="выставка">Выставка</option>
             </select>
             {user && (
-              <button
-                onClick={() => dispatch(openModal())}
-                className={styles.createButton}
-              >
+              <button onClick={() => dispatch(openModal())} className={styles.createButton}>
                 + Создать мероприятие
               </button>
             )}
@@ -114,6 +115,7 @@ const Events = () => {
             user={user}
           />
         )}
+
         {isModalOpen && (
           <CreateEventModal
             onClose={() => dispatch(closeModal())}

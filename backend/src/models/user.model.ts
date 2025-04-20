@@ -26,6 +26,7 @@ class User
   public password!: string;
   public role!: 'user' | 'admin';
   public firstName!: string;
+  public middleName?: string | undefined;
   public lastName!: string;
   public gender!: 'male' | 'female';
   public birthDate!: string;

@@ -2,11 +2,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import eventsReducer from './slices/eventSlice';
 import userReducer from './slices/userSlice';
+import authReducer from './slices/authSlice';
 
 export const store = configureStore({
   reducer: {
     events: eventsReducer,
     user: userReducer,
+    auth: authReducer,
   },
 });
 
