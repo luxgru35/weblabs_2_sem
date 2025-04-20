@@ -1,3 +1,4 @@
+//auth.ts
 import { Router, Request, Response, NextFunction } from 'express';
 import { compare } from 'bcryptjs';
 import User from '@models/user.model';
@@ -16,6 +17,11 @@ interface RegisterRequestBody {
   name: string;
   password: string;
   role?: 'user' | 'admin';
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  gender: 'male' | 'female';
+  birthDate: string;
 }
 
 interface LoginRequestBody {
@@ -34,9 +40,26 @@ router.post(
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { email, name, password, role } = req.body;
-      const existingUser = await User.findOne({ where: { email } });
+      const {
+        email,
+        name,
+        password,
+        role,
+        firstName,
+        lastName,
+        middleName,
+        gender,
+        birthDate,
+      } = req.body;
 
+      // Проверка формата даты
+      if (!birthDate || isNaN(Date.parse(birthDate))) {
+        res.status(400).json({ message: 'Неверный формат даты рождения' });
+        return;
+      }
+
+      // Проверка существующего пользователя
+      const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         res
           .status(400)
@@ -44,18 +67,38 @@ router.post(
         return;
       }
 
+      // Создание пользователя с ВСЕМИ переданными данными
       const user = await User.create({
         email,
         name,
         password,
         role: role || 'user',
+        firstName, // Используем переданное значение
+        lastName, // Используем переданное значение
+        middleName,
+        gender, // Используем переданное значение
+        birthDate,
       });
+
+      // Не возвращаем пароль в ответе
+      const userResponse = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        gender: user.gender,
+        birthDate: user.birthDate,
+      };
 
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
-        user: { name, email, role: user.role },
+        user: userResponse,
       });
     } catch (error) {
+      console.error('Error during registration:', error);
       next(error);
     }
   },
@@ -72,7 +115,17 @@ router.get(
       }
 
       const user = await User.findByPk(req.user.id, {
-        attributes: ['id', 'name', 'email', 'role'],
+        attributes: [
+          'id',
+          'name',
+          'email',
+          'role',
+          'firstName',
+          'lastName',
+          'middleName',
+          'gender',
+          'birthDate',
+        ],
       });
 
       if (!user) {

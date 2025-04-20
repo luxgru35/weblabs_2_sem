@@ -1,41 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getToken } from '@utils/storage';
-import { verifyToken } from '@api/authService';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { checkAuthToken } from '../../store/slices/authSlice';
 import styles from './Login.module.scss';
 import LoginForm from './components/LoginForm/LoginForm';
 
 const Login = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { isAuthenticated, isLoading, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = getToken();
-        if (!token) {
-          setIsCheckingAuth(false);
-          return;
-        }
+    dispatch(checkAuthToken());
+  }, [dispatch]);
 
-        const isValid = await verifyToken();
-        if (isValid) {
-          navigate('/events');
-        } else {
-          localStorage.removeItem('authToken');
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        localStorage.removeItem('authToken');
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate('/events');
+    }
+  }, [isAuthenticated, user, navigate]);
 
-    checkAuth();
-  }, [navigate]);
+  const handleLogoClick = () => {
+    navigate('/');
+  };
 
-  if (isCheckingAuth) {
+  if (isLoading) {
     return <div className={styles.loading}>Проверка авторизации...</div>;
   }
 
@@ -48,8 +37,18 @@ const Login = () => {
             src="https://cdn-icons-png.flaticon.com/512/2452/2452565.png" 
             alt="Логотип" 
             className={styles.logo}
+            onClick={handleLogoClick}
+            style={{ cursor: 'pointer' }}
           />
-          <h1 className={styles.title}>Добро пожаловать в <span>МоиМероприятия</span></h1>
+          <h1 className={styles.title}>
+            Добро пожаловать в{' '}
+            <span 
+              className={styles.appName}
+              onClick={handleLogoClick}
+            >
+              МоиМероприятия
+            </span>
+          </h1>
           <p className={styles.subtitle}>Войдите, чтобы управлять своими мероприятиями</p>
         </div>
         <div className={styles.formSection}>

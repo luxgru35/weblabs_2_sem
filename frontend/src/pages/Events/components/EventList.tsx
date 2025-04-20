@@ -1,17 +1,22 @@
 //EventList.tsx
 import { useState } from 'react';
-import { Event } from '../../../types/event';
-import { User } from '../../../types/user';
-import { deleteEvent, updateEvent } from '@api/eventService';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { RootState } from '../../../store/store';
+import { loadEvents, removeEvent, updateEventThunk } from '../../../store/slices/eventSlice';
 import styles from './EventList.module.scss';
+import { Event } from '../../../types/event';
+import { FC } from 'react';
 
 interface EventListProps {
   events: Event[];
   onEventUpdate: () => void;
-  user: User | null;
+  user: any;
 }
+const EventList: FC<EventListProps> = (props) => {
+  const dispatch = useAppDispatch();
+  const { events } = props;
+  const { user } = useAppSelector((state: RootState) => state.user);
 
-const EventList = ({ events, onEventUpdate, user }: EventListProps) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -30,13 +35,11 @@ const EventList = ({ events, onEventUpdate, user }: EventListProps) => {
 
   const handleDelete = async () => {
     if (!eventToDelete) return;
-    
     try {
-      await deleteEvent(eventToDelete);
-      onEventUpdate();
-    } catch (error) {
+      await dispatch(removeEvent(eventToDelete)).unwrap();
+      await dispatch(loadEvents());
+    } catch (e) {
       setError('Ошибка при удалении мероприятия');
-      console.error('Ошибка при удалении мероприятия:', error);
     } finally {
       setShowDeleteConfirm(false);
       setEventToDelete(null);
@@ -48,32 +51,31 @@ const EventList = ({ events, onEventUpdate, user }: EventListProps) => {
     setFormData({
       title: event.title,
       description: event.description,
-      date: event.date,
+      date: new Date(event.date).toISOString().split('T')[0],
       category: event.category
     });
     setError('');
   };
+  
 
   const handleSave = async () => {
     if (!editingEvent) return;
-    
     if (!['концерт', 'лекция', 'выставка'].includes(formData.category)) {
       setError('Выберите допустимую категорию: концерт, лекция или выставка');
       return;
     }
-  
+
     try {
-      await updateEvent(editingEvent.id, formData);
+      await dispatch(updateEventThunk({ id: editingEvent.id, eventData: formData })).unwrap();
       setEditingEvent(null);
-      onEventUpdate();
-    } catch (error: any) {
-      if (error.response?.status === 400 && error.response?.data?.message === 'Недопустимая категория') {
-        setError('Выберите допустимую категорию: концерт, лекция или выставка');
-      } else if (error.response?.status === 403) {
+      await dispatch(loadEvents());
+    } catch (e: any) {
+      if (e.message === 'Недопустимая категория') {
+        setError('Выберите допустимую категорию');
+      } else if (e.message === 'Forbidden') {
         setError('Можно редактировать только свои мероприятия');
       } else {
         setError('Ошибка при обновлении мероприятия');
-        console.error("Ошибка при обновлении мероприятия:", error);
       }
     }
   };
@@ -142,12 +144,17 @@ const EventList = ({ events, onEventUpdate, user }: EventListProps) => {
                     onChange={(e) => setFormData({...formData, date: e.target.value})}
                     className={styles.inputField}
                   />
-                  <input
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="Категория"
-                    className={styles.inputField}
-                  />
+                  <select
+  value={formData.category}
+  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+  className={styles.inputField}
+>
+  <option value="">Выберите категорию</option>
+  <option value="концерт">Концерт</option>
+  <option value="лекция">Лекция</option>
+  <option value="выставка">Выставка</option>
+</select>
+
                   <div className={styles.formActions}>
                     <button onClick={handleSave} className={styles.saveButton}>
                       Сохранить

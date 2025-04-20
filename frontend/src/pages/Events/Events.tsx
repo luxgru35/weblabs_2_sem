@@ -1,88 +1,69 @@
-// events.tsx
-import { useEffect, useState } from 'react';
-import { fetchEvents, createEvent } from '@api/eventService';
-import { getUser } from '@api/authService';
+import { useEffect, useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  loadEvents,
+  setCategory,
+  addEvent,
+  openModal,
+  closeModal,
+} from '../../store/slices/eventSlice';
+import { loadUser } from '../../store/slices/userSlice';
 import styles from './Events.module.scss';
 import EventList from './components/EventList';
-import { Link } from 'react-router-dom';
 import CreateEventModal from './components/CreateEventModal';
-import { User } from '../../types/user';
-import { Event } from '../../types/event'
+import { Link } from 'react-router-dom';
+import { Event } from '../../types/event';
 
 const Events = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [user, setUser] = useState<User | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('все');
-
-  const loadEvents = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchEvents();
-      setEvents(data);
-      setFilteredEvents(data);
-    } catch (error) {
-      setError('Ошибка при загрузке мероприятий');
-      console.error('Error fetching events:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateEvent = async (eventData: {
-    title: string;
-    description: string;
-    date: string;
-    category: string;
-  }) => {
-    try {
-      await createEvent(eventData);
-      loadEvents();
-    } catch (error) {
-      console.error('Ошибка при создании мероприятия:', error);
-    }
-  };
-
-  // Фильтрация мероприятий по категории
-  const filterEvents = (category: string) => {
-    setSelectedCategory(category);
-    if (category === 'все') {
-      setFilteredEvents(events);
-    } else {
-      setFilteredEvents(events.filter(event => event.category === category));
-    }
-  };
+  const dispatch = useAppDispatch();
+  const {
+    items: events,
+    loading,
+    error,
+    selectedCategory,
+    isModalOpen,
+  } = useAppSelector((state) => state.events);
+  const { user } = useAppSelector((state) => state.user);
 
   useEffect(() => {
-    loadEvents();
-    getUser()
-      .then(setUser)
-      .catch((error) => console.error('Ошибка при загрузке пользователя:', error));
-  }, []);
+    dispatch(loadEvents());
+    dispatch(loadUser());
+  }, [dispatch]);
+
+  const handleCreateEvent = async (eventData: Omit<Event, 'id' | 'createdBy'>): Promise<void> => {
+    await dispatch(addEvent({ ...eventData, createdBy: user?.id || 'unknown' }));
+  };
+
+  const filteredEvents = useMemo(() => {
+    return selectedCategory === 'все'
+      ? events
+      : events.filter((event) => event.category === selectedCategory);
+  }, [events, selectedCategory]);
 
   return (
     <div className={styles.eventsPage}>
       <div className={styles.backgroundAnimation}></div>
-      
+
       <header className={styles.header}>
-        <div className={styles.logoContainer}>
+        <Link to="/" className={styles.logoContainer}>
           <img
             src="https://cdn-icons-png.flaticon.com/512/2452/2452565.png"
             alt="Логотип"
             className={styles.logo}
           />
-          <h1 className={styles.title}>Мои<span>Мероприятия</span></h1>
-        </div>
+          <h1 className={styles.title}>
+            Мои<span>Мероприятия</span>
+          </h1>
+        </Link>
 
         {user ? (
           <div className={styles.userSection}>
-            <div className={styles.userGreeting}>
-              <span className={styles.welcome}>Добро пожаловать,</span>
-              <span className={styles.userName}>{user.name}</span>
-            </div>
+            <Link to="/profile" className={styles.profileButton}>
+              <div className={styles.userGreeting}>
+                <span className={styles.welcome}>Добро пожаловать,</span>
+                <span className={styles.userName}>{user.name}</span>
+              </div>
+            </Link>
           </div>
         ) : (
           <div className={styles.authSection}>
@@ -104,7 +85,7 @@ const Events = () => {
           <div className={styles.filterControls}>
             <select
               value={selectedCategory}
-              onChange={(e) => filterEvents(e.target.value)}
+              onChange={(e) => dispatch(setCategory(e.target.value))}
               className={styles.categoryFilter}
             >
               <option value="все">Все категории</option>
@@ -113,10 +94,7 @@ const Events = () => {
               <option value="выставка">Выставка</option>
             </select>
             {user && (
-              <button 
-                onClick={() => setIsModalOpen(true)} 
-                className={styles.createButton}
-              >
+              <button onClick={() => dispatch(openModal())} className={styles.createButton}>
                 + Создать мероприятие
               </button>
             )}
@@ -131,15 +109,16 @@ const Events = () => {
         ) : error ? (
           <p className={styles.error}>{error}</p>
         ) : (
-          <EventList 
-            events={filteredEvents} 
-            onEventUpdate={loadEvents} 
+          <EventList
+            events={filteredEvents}
+            onEventUpdate={() => dispatch(loadEvents())}
             user={user}
           />
         )}
+
         {isModalOpen && (
           <CreateEventModal
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => dispatch(closeModal())}
             onCreate={handleCreateEvent}
           />
         )}

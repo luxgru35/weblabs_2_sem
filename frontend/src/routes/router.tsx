@@ -6,6 +6,8 @@ import Register from "@pages/Register/Register";
 import Events from "@pages/Events/Events";
 import NotFound from "@pages/NotFound/NotFound";
 import ForgotPasswordPage from "@pages/ForgotPassword/ForgotPasswordPage"
+import ProtectedRoute from "@components/ProtectedRoute";
+import ProfilePage from "@pages/ProfilePage/ProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
   {
     path: "/forgot-password",
     element: <ForgotPasswordPage />,
+  },
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "*",

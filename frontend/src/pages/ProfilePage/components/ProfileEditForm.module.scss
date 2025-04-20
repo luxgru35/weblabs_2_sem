@@ -1,0 +1,61 @@
+.editForm {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.formGroup {
+  margin-bottom: 15px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  input, select {
+    width: 90%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;  // Располагаем кнопки с равным отступом
+  gap: 10px;  // Добавляем отступ между кнопками
+}
+
+.cancelButton,
+.submitButton {
+  width: 55%;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background: #f44336;
+  color: white;
+  border: none;
+
+  &:hover {
+    background: #e53935;
+  }
+}
+
+.submitButton {
+  background: #4CAF50;
+  color: white;
+  border: none;
+
+  &:hover {
+    background: #45a049;
+  }
+}

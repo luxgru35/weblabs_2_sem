@@ -1,4 +1,5 @@
 // CreateEventModal.module.scss
+$error-color: #ff3333;
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -30,7 +31,16 @@
     margin-bottom: 1.5rem;
     border: 1px solid #ffcccc;
   }
+  .fieldError {
+    color: $error-color;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    display: block;
+  }
   
+  .errorSelect {
+    border-color: $error-color;
+  }
   .closeButton {
     position: absolute;
     top: 1rem;
