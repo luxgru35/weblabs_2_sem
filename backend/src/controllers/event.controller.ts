@@ -7,6 +7,38 @@ import {
   ForbiddenError,
 } from '../utils/errors.js';
 
+export const getEventsByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const { id } = req.params;
+
+  if (!req.user) {
+    res.status(401).json({ message: 'Не авторизован' });
+    return;
+  }
+
+  const isAdmin = req.user.role === 'admin';
+  const isSelf = req.user.id === Number(id);
+
+  if (!isAdmin && !isSelf) {
+    return next(
+      new ForbiddenError('Нет доступа к мероприятиям этого пользователя'),
+    );
+  }
+
+  try {
+    const events = await Event.findAll({
+      where: { createdBy: id },
+    });
+
+    res.status(200).json(events);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Получение списка всех мероприятий
 export const getAllEvents = async (
   req: Request,

@@ -7,6 +7,11 @@ import styles from './RegisterForm.module.scss';
 const RegisterForm = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [birthDate, setBirthDate] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +23,16 @@ const RegisterForm = () => {
     setIsLoading(true);
     
     try {
-      const { token } = await register(email, name, password);
+      const { token } = await register({
+        email,
+        name,
+        password,
+        firstName,
+        lastName,
+        middleName,
+        gender,
+        birthDate,
+      });
       setToken(token);
       navigate('/login');
     } catch (error) {
@@ -45,17 +59,81 @@ const RegisterForm = () => {
       </div>
       
       <div className={styles.formGroup}>
-        <label htmlFor="name" className={styles.label}>Имя</label>
+        <label htmlFor="name" className={styles.label}>Имя пользователя</label>
         <input
           id="name"
           type="text"
-          placeholder="Введите ваше имя"
+          placeholder="Введите имя пользователя"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className={styles.input}
           required
         />
       </div>
+
+      <div className={styles.formGroup}>
+  <label htmlFor="firstName" className={styles.label}>Имя</label>
+  <input
+    id="firstName"
+    type="text"
+    placeholder="Введите имя"
+    value={firstName}
+    onChange={(e) => setFirstName(e.target.value)}
+    className={styles.input}
+    required
+  />
+</div>    
+
+<div className={styles.formGroup}>
+  <label htmlFor="lastName" className={styles.label}>Фамилия</label>
+  <input
+    id="lastName"
+    type="text"
+    placeholder="Введите фамилию"
+    value={lastName}
+    onChange={(e) => setLastName(e.target.value)}
+    className={styles.input}
+    required
+  />
+</div>
+
+<div className={styles.formGroup}>
+  <label htmlFor="middleName" className={styles.label}>Отчество (необязательно)</label>
+  <input
+    id="middleName"
+    type="text"
+    placeholder="Введите отчество"
+    value={middleName}
+    onChange={(e) => setMiddleName(e.target.value)}
+    className={styles.input}
+  />
+</div>
+
+<div className={styles.formGroup}>
+  <label htmlFor="gender" className={styles.label}>Пол</label>
+  <select
+    id="gender"
+    value={gender}
+    onChange={(e) => setGender(e.target.value as 'male' | 'female')}
+    className={styles.input}
+    required
+  >
+    <option value="male">Мужской</option>
+    <option value="female">Женский</option>
+  </select>
+</div>
+
+<div className={styles.formGroup}>
+  <label htmlFor="birthDate" className={styles.label}>Дата рождения</label>
+  <input
+    id="birthDate"
+    type="date"
+    value={birthDate}
+    onChange={(e) => setBirthDate(e.target.value)}
+    className={styles.input}
+    required
+  />
+</div>
 
       <div className={styles.formGroup}>
         <label htmlFor="password" className={styles.label}>Пароль</label>

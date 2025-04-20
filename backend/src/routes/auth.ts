@@ -1,3 +1,4 @@
+//auth.ts
 import { Router, Request, Response, NextFunction } from 'express';
 import { compare } from 'bcryptjs';
 import User from '@models/user.model';
@@ -16,6 +17,11 @@ interface RegisterRequestBody {
   name: string;
   password: string;
   role?: 'user' | 'admin';
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  gender: 'male' | 'female';
+  birthDate: string;
 }
 
 interface LoginRequestBody {
@@ -34,7 +40,20 @@ router.post(
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { email, name, password, role } = req.body;
+      const {
+        email,
+        name,
+        password,
+        role,
+        firstName,
+        lastName,
+        gender,
+        birthDate,
+      } = req.body;
+      if (!birthDate || isNaN(Date.parse(birthDate))) {
+        res.status(400).json({ message: 'Неверный формат даты рождения' });
+        return;
+      }
       const existingUser = await User.findOne({ where: { email } });
 
       if (existingUser) {
@@ -49,13 +68,26 @@ router.post(
         name,
         password,
         role: role || 'user',
+        firstName: '',
+        lastName: '',
+        gender: 'male',
+        birthDate,
       });
 
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
-        user: { name, email, role: user.role },
+        user: {
+          name,
+          email,
+          role: user.role,
+          firstName,
+          lastName,
+          gender,
+          birthDate,
+        },
       });
     } catch (error) {
+      console.error('Error during registration:', error);
       next(error);
     }
   },
@@ -72,7 +104,17 @@ router.get(
       }
 
       const user = await User.findByPk(req.user.id, {
-        attributes: ['id', 'name', 'email', 'role'],
+        attributes: [
+          'id',
+          'name',
+          'email',
+          'role',
+          'firstName',
+          'lastName',
+          'middleName',
+          'gender',
+          'birthDate',
+        ],
       });
 
       if (!user) {

@@ -1,3 +1,4 @@
+//global.d.ts
 import { UserAttributes } from '@models/user.model';
 
 declare global {

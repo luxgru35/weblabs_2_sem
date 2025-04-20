@@ -9,6 +9,11 @@ interface UserAttributes {
   email: string;
   password: string;
   role: 'user' | 'admin';
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  gender: 'male' | 'female';
+  birthDate: string;
 }
 
 class User
@@ -20,7 +25,10 @@ class User
   public email!: string;
   public password!: string;
   public role!: 'user' | 'admin';
-
+  public firstName!: string;
+  public lastName!: string;
+  public gender!: 'male' | 'female';
+  public birthDate!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -40,9 +48,7 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      validate: {
-        isEmail: true,
-      },
+      validate: { isEmail: true },
     },
     password: {
       type: DataTypes.STRING,
@@ -52,6 +58,25 @@ User.init(
       type: DataTypes.ENUM('user', 'admin'),
       allowNull: false,
       defaultValue: 'user',
+    },
+    firstName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    middleName: {
+      type: DataTypes.STRING,
+    },
+    gender: {
+      type: DataTypes.ENUM('male', 'female', 'other'),
+      allowNull: false,
+    },
+    birthDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
     },
   },
   {

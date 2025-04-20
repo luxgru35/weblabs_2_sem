@@ -55,9 +55,18 @@ export const loginUser = createAsyncThunk(
 // Создаем асинхронный thunk для регистрации
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async (userData: { email: string; name: string; password: string; role?: string }, { rejectWithValue }) => {
+  async (userData: { email: string; name: string; password: string; role?: string; firstName: string; lastName: string; gender: 'male' | 'female'; birthDate: string }, { rejectWithValue }) => {
     try {
-      const response = await register(userData.email, userData.name, userData.password, userData.role);
+      const response = await register({
+        email: userData.email,
+        name: userData.name,
+        password: userData.password,
+        role: userData.role,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        gender: userData.gender,
+        birthDate: userData.birthDate,
+      });
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {

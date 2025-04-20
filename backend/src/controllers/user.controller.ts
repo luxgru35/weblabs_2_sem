@@ -8,6 +8,11 @@ interface CreateUserRequestBody {
   email: string;
   password: string;
   role?: 'user' | 'admin';
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  gender: 'male' | 'female';
+  birthDate: string;
 }
 // Создание пользователя
 const createUser = async (
@@ -19,10 +24,28 @@ const createUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { name, email, password, role = 'user' } = req.body; // Установлен default для role
+  const {
+    name,
+    email,
+    password,
+    role = 'user',
+    firstName,
+    lastName,
+    middleName,
+    gender,
+    birthDate,
+  } = req.body;
 
-  if (!name || !email || !password) {
-    return next(new ValidationError('Имя, email и пароль обязательны.'));
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !firstName ||
+    !lastName ||
+    !gender ||
+    !birthDate
+  ) {
+    return next(new ValidationError('Обязательные поля не заполнены.'));
   }
 
   try {
@@ -31,7 +54,17 @@ const createUser = async (
       throw new ValidationError('Email уже существует.');
     }
 
-    const newUser = await User.create({ name, email, password, role });
+    const newUser = await User.create({
+      name,
+      email,
+      password,
+      role,
+      firstName,
+      lastName,
+      middleName,
+      gender,
+      birthDate,
+    });
     res
       .status(201)
       .json({ message: 'Пользователь успешно создан', user: newUser });
