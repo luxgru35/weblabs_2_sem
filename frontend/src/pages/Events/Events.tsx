@@ -1,36 +1,24 @@
-// events.tsx
-import { useEffect, useState } from 'react';
-import { fetchEvents, createEvent } from '@api/eventService';
-import { getUser } from '@api/authService';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store/store';
+import { loadEvents, setCategory, addEvent, openModal, closeModal } from '../../store/slices/eventSlice';
+import { loadUser } from '../../store/slices/userSlice';
 import styles from './Events.module.scss';
 import EventList from './components/EventList';
-import { Link } from 'react-router-dom';
 import CreateEventModal from './components/CreateEventModal';
-import { User } from '../../types/user';
-import { Event } from '../../types/event'
+import { Link } from 'react-router-dom';
 
 const Events = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [user, setUser] = useState<User | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('все');
+  const dispatch = useDispatch<AppDispatch>();
+  const { items: events, loading, error, selectedCategory, isModalOpen } = useSelector(
+    (state: RootState) => state.events
+  );
+  const { user } = useSelector((state: RootState) => state.user);
 
-  const loadEvents = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchEvents();
-      setEvents(data);
-      setFilteredEvents(data);
-    } catch (error) {
-      setError('Ошибка при загрузке мероприятий');
-      console.error('Error fetching events:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    dispatch(loadEvents());
+    dispatch(loadUser());
+  }, [dispatch]);
 
   const handleCreateEvent = async (eventData: {
     title: string;
@@ -38,35 +26,22 @@ const Events = () => {
     date: string;
     category: string;
   }) => {
-    try {
-      await createEvent(eventData);
-      loadEvents();
-    } catch (error) {
-      console.error('Ошибка при создании мероприятия:', error);
-    }
+    dispatch(addEvent({ ...eventData, createdBy: user?.id || 'unknown' }));
   };
 
-  // Фильтрация мероприятий по категории
   const filterEvents = (category: string) => {
-    setSelectedCategory(category);
-    if (category === 'все') {
-      setFilteredEvents(events);
-    } else {
-      setFilteredEvents(events.filter(event => event.category === category));
-    }
+    dispatch(setCategory(category));
   };
 
-  useEffect(() => {
-    loadEvents();
-    getUser()
-      .then(setUser)
-      .catch((error) => console.error('Ошибка при загрузке пользователя:', error));
-  }, []);
+  const filteredEvents =
+    selectedCategory === 'все'
+      ? events
+      : events.filter((event) => event.category === selectedCategory);
 
   return (
     <div className={styles.eventsPage}>
       <div className={styles.backgroundAnimation}></div>
-      
+
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <img
@@ -74,7 +49,9 @@ const Events = () => {
             alt="Логотип"
             className={styles.logo}
           />
-          <h1 className={styles.title}>Мои<span>Мероприятия</span></h1>
+          <h1 className={styles.title}>
+            Мои<span>Мероприятия</span>
+          </h1>
         </div>
 
         {user ? (
@@ -113,8 +90,8 @@ const Events = () => {
               <option value="выставка">Выставка</option>
             </select>
             {user && (
-              <button 
-                onClick={() => setIsModalOpen(true)} 
+              <button
+                onClick={() => dispatch(openModal())}
                 className={styles.createButton}
               >
                 + Создать мероприятие
@@ -131,15 +108,15 @@ const Events = () => {
         ) : error ? (
           <p className={styles.error}>{error}</p>
         ) : (
-          <EventList 
-            events={filteredEvents} 
-            onEventUpdate={loadEvents} 
+          <EventList
+            events={filteredEvents}
+            onEventUpdate={() => dispatch(loadEvents())}
             user={user}
           />
         )}
         {isModalOpen && (
           <CreateEventModal
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => dispatch(closeModal())}
             onCreate={handleCreateEvent}
           />
         )}

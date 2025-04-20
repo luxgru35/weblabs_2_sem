@@ -1,25 +1,24 @@
 // CreateEventModal.tsx
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../store/store';
+import { addEvent, loadEvents } from '../../../store/slices/eventSlice';
 import styles from './CreateEventModal.module.scss';
-
-type EventCategory = 'концерт' | 'лекция' | 'выставка';
 
 interface CreateEventModalProps {
   onClose: () => void;
-  onCreate: (event: { 
-    title: string; 
-    description: string; 
-    date: string; 
-    category: EventCategory 
-  }) => Promise<void>;
+  onCreate: (eventData: { title: string; description: string; date: string; category: string }) => Promise<void>;
 }
 
-const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
+const CreateEventModal = ({ onClose }: CreateEventModalProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     date: '',
-    category: '' as EventCategory | ''
+    category: '' as 'концерт' | 'лекция' | 'выставка' | ''
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,15 +26,13 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setError(''); // Сбрасываем ошибку при изменении
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
 
-    // Валидация на фронтенде
     if (!formData.category || !['концерт', 'лекция', 'выставка'].includes(formData.category)) {
       setError('Пожалуйста, выберите допустимую категорию');
       setIsSubmitting(false);
@@ -43,17 +40,11 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
     }
 
     try {
-      await onCreate({
-        ...formData,
-        category: formData.category as EventCategory
-      });
+      await dispatch(addEvent({ ...formData, createdBy: user?.id || 'unknown' })).unwrap();
+      await dispatch(loadEvents());
       onClose();
     } catch (err: any) {
-      if (err.response?.data?.message === 'Недопустимая категория') {
-        setError('Выберите допустимую категорию: концерт, лекция или выставка');
-      } else {
-        setError('Произошла ошибка при создании мероприятия');
-      }
+      setError(err.message || 'Произошла ошибка при создании');
     } finally {
       setIsSubmitting(false);
     }
